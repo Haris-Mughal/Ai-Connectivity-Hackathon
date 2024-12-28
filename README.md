@@ -1,4 +1,4 @@
-# DOGE Hackathon - Energy Efficiency in Government
+# AI Connecttivity Hackathon
 
 This project is a Retrieval-Augmented Generation (RAG) system that allows users to query embedded datasets related to government energy consumption. The system is preloaded with energy datasets in a vector database and provides a conversational AI assistant powered by the GROK model.
 
@@ -9,11 +9,6 @@ This project is a Retrieval-Augmented Generation (RAG) system that allows users 
 - Supports embedding generation using OpenAI's GPT-4 model.
 - User-friendly interface built with Streamlit.
 
-## Workflow Diagram
-
-The diagram below illustrates the overall workflow of the system, showcasing how user queries interact with the vector database, document embedding, and response generation.
-
-![Workflow Diagram](./assets/workflow-diagram.png)
 
 ## Updates
 

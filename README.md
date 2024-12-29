@@ -1,10 +1,10 @@
 # AI Connect - Smarter Network Planning for the Future
 
-This project is a Retrieval-Augmented Generation (RAG) system that allows users to query embedded datasets related to government energy consumption. The system is preloaded with energy datasets in a vector database and provides a conversational AI assistant powered by the OPEN AI Model.
+This project is a Retrieval-Augmented Generation (RAG) system that allows users to query embedded datasets related to 5G network optimization. The system is preloaded with 5G network datasets in a vector database and provides a conversational AI assistant powered by the OpenAI Model
 
 ## Features
 
-- Preloaded vector database with embedded energy datasets.
+- Preloaded vector database with embedded Network datasets.
 - Query energy datasets using a conversational AI assistant.
 - Supports embedding generation using OpenAI's GPT-4 model.
 - User-friendly interface built with Streamlit.
@@ -12,7 +12,7 @@ This project is a Retrieval-Augmented Generation (RAG) system that allows users 
 
 ## Updates
 
-- **File Upload Sidebar:** The file upload functionality is currently hidden as the vector database already contains preloaded energy datasets. 
+- **File Upload Sidebar:** The file upload functionality is currently hidden as the vector database already contains preloaded network datasets. 
 - **Re-enable Sidebar:** If needed, uncomment the sidebar code in `app.py` to allow file uploads. Instructions for enabling this feature are provided in the `Usage` section.
 
 
@@ -84,7 +84,7 @@ This project is a Retrieval-Augmented Generation (RAG) system that allows users 
 
 2. **Ask questions in the chat interface on the right side of the screen.**
 
-   - Example of a question: **Highlight areas of energy waste in government facilities and suggest strategies to optimize usage. Quantify potential savings and environmental impacts.**
+   - Example of a question: **What are the potential inefficiencies in the current 5G network deployment, and how can we optimize resource usage to improve latency and throughput?.**
 
 
 

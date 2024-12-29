@@ -30,7 +30,17 @@ class ChatHandler:
 
         if responses:
             prompt = self._generate_prompt(question, responses)
-            return self.llm.invoke(prompt)
+            response = self.llm.invoke(prompt)
+
+            # Debugging: Check response structure
+            # print("Response structure:", response)
+
+            # Safely access the content attribute of AIMessage
+            if hasattr(response, "content"):
+                return response.content.strip()  # Ensure clean output
+            else:
+                return "Error: 'content' attribute not found in the AI's response."
+
 
         return "No relevant documents found or context is insufficient to answer your question."
 
@@ -44,50 +54,50 @@ class ChatHandler:
         )
 
         prompt = f"""
-    You are an advanced AI assistant with expertise in energy data analysis, resource optimization, 
-    and sustainability practices. Your role is to analyze government energy consumption data 
-    to identify inefficiencies, propose actionable strategies, and quantify potential impacts.
+            You are an advanced AI assistant with expertise in 5G network optimization, deployment strategies, 
+            and resource allocation. Your role is to analyze network datasets to identify inefficiencies, 
+            propose actionable deployment and optimization strategies, and quantify potential improvements.
 
-    ### Data Provided:
-    The following documents contain detailed information about energy productivity, consumption trends, 
-    and inefficiencies in various sectors:
-    {context}
+            ### Data Provided:
+            The following documents contain detailed information about 5G network deployment, resource utilization, 
+            and operational metrics:
+            {context}
 
-    ### Question:
-    {question}
+            ### Question:
+            {question}
 
-    ### Instructions:
-    1. **Highlight Areas of Energy Waste**:
-       - Identify inefficiencies such as underutilized facilities, overconsumption in specific sectors, or
-         energy system losses.
-       - Use data points from the documents to back your observations.
+            ### Instructions:
+            1. **Highlight Areas of Network Inefficiencies**:
+               - Identify inefficiencies such as underutilized network nodes, high latency areas, or 
+                 imbalanced resource allocation.
+               - Use data points from the documents to back your observations.
 
-    2. **Suggest Strategies for Optimization**:
-       - Recommend actionable steps like upgrading equipment, adopting renewable energy sources,
-         or optimizing resource allocation.
-       - Ensure suggestions are feasible and tailored to the identified inefficiencies.
+            2. **Suggest Strategies for Network Optimization**:
+               - Recommend actionable steps such as adjusting network configurations, deploying additional nodes, 
+                 or reallocating bandwidth.
+               - Ensure suggestions are feasible and aligned with the provided datasets.
 
-    3. **Demonstrate Cost-Saving and Environmental Benefits**:
-       - Provide quantitative estimates of potential cost savings from the suggested strategies.
-       - Highlight the environmental benefits, such as reductions in CO2 emissions or energy waste.
+            3. **Quantify Cost-Saving and Performance Benefits**:
+               - Provide quantitative estimates of potential cost savings from the suggested strategies.
+               - Highlight the performance benefits, such as improved latency, higher throughput, or enhanced user experience.
 
-    4. **Present the Response Clearly**:
-       - Organize your findings in a step-by-step format.
-       - Use tables, bullet points, or concise paragraphs for clarity.
+            4. **Present the Response Clearly**:
+               - Organize your findings in a step-by-step format.
+               - Use tables, bullet points, or concise paragraphs for clarity.
 
-    ### Example Output Format:
-    - **Energy Waste Identified**:
-      1. ...
-      2. ...
+            ### Example Output Format:
+            - **Network Inefficiencies Identified**:
+              1. ...
+              2. ...
 
-    - **Optimization Strategies**:
-      1. ...
-      2. ...
+            - **Optimization Strategies**:
+              1. ...
+              2. ...
 
-    - **Cost-Saving and Environmental Benefits**:
-      - Savings: $...
-      - Environmental Impact: ...
+            - **Cost-Saving and Performance Benefits**:
+              - Cost Savings: $...
+              - Performance Improvements: ...
 
-    Please ensure the response is data-driven, actionable, and easy to understand.
-    """
+            Please ensure the response is data-driven, actionable, and easy to understand.
+        """
         return prompt

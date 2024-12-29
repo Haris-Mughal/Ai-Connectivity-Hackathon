@@ -23,7 +23,7 @@ This project is a Retrieval-Augmented Generation (RAG) system that allows users 
 
    ```bash
     git clone https://github.com/rajeshthangaraj1/ai-connectivity-hackathon.git
-    cd doge-hackathon-rag
+    cd ai-connectivity-hackathon
     ```
    
 2. **Create a virtual environment:**

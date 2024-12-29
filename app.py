@@ -17,7 +17,7 @@ chat_handler = ChatHandler(VECTOR_DB_PATH,OPENAI_API_KEY)
 
 # Streamlit UI
 st.set_page_config(layout="wide", page_title="AI Connect - Smarter Network Planning for the Future")
-st.title("AI Connect - Smarter Network Planning for the Future")
+st.title("Chatbot - Smarter Network Planning for the Future")
 # Enable the below line to show the sidebar
 
 # Left Side: File Upload
@@ -38,14 +38,28 @@ if st.sidebar.button("Process File"):
     else:
         st.sidebar.warning("Please upload a file before processing.")
 
-# Right Side: Chat Interface
-st.header("Ask Questions")
-user_question = st.text_input("Type your question here:")
+# Main: Chat Interface
+# st.header("Chat Interface")
 
-if st.button("Submit Question"):
-    if user_question:
-        with st.spinner("Processing your question..."):
-            response = chat_handler.answer_question(user_question)
-        st.write(response)
-    else:
-        st.warning("Please enter a question.")
+# Initialize session state for chat history
+if "messages" not in st.session_state:
+    st.session_state["messages"] = []
+
+# Display chat messages from history
+for message in st.session_state["messages"]:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+# Accept user input
+if prompt := st.chat_input("Type your question here..."):
+    # Display user message
+    with st.chat_message("user"):
+        st.markdown(prompt)
+    st.session_state["messages"].append({"role": "user", "content": prompt})
+
+    # Generate AI response
+    with st.spinner("Processing your question..."):
+        response = chat_handler.answer_question(prompt)
+    with st.chat_message("assistant"):
+        st.markdown(response)
+    st.session_state["messages"].append({"role": "assistant", "content": response})

@@ -10,10 +10,12 @@ load_dotenv()
 # Initialize Handlers
 VECTOR_DB_PATH = st.secrets["VECTOR_DB_PATH_DB"]
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
+HUGGINGFACE_API_TOKEN = st.secrets["HUGGINGFACE_API_TOKEN"]
+
 os.makedirs(VECTOR_DB_PATH, exist_ok=True)
 
-file_handler = FileHandler(VECTOR_DB_PATH,OPENAI_API_KEY)
-chat_handler = ChatHandler(VECTOR_DB_PATH,OPENAI_API_KEY)
+file_handler = FileHandler(VECTOR_DB_PATH,HUGGINGFACE_API_TOKEN)
+chat_handler = ChatHandler(VECTOR_DB_PATH,HUGGINGFACE_API_TOKEN,OPENAI_API_KEY)
 
 # Streamlit UI
 st.set_page_config(layout="wide", page_title="AI Connect - Smarter Network Planning for the Future")

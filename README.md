@@ -55,6 +55,9 @@ This project is a Retrieval-Augmented Generation (RAG) system that allows users 
     ```env
     OPENAI_API_KEY = "your-openai-api-key-here"
     VECTOR_DB_PATH_DB = "./vectordb"
+    HUGGINGFACE_API_TOKEN="your-huggingface-api-token"
+    ```
+   
 
 ### Usage
 

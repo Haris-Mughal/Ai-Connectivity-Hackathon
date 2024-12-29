@@ -1,12 +1,17 @@
 import os
 from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI
-from langchain_openai import OpenAIEmbeddings
+from langchain.embeddings import HuggingFaceEmbeddings
+
 
 class ChatHandler:
-    def __init__(self, vector_db_path,open_api_key):
+    def __init__(self, vector_db_path,api_token,open_api_key):
         self.vector_db_path = vector_db_path
-        self.embeddings = OpenAIEmbeddings(api_key=open_api_key)
+        # Initialize the embedding model using Hugging Face
+        self.embeddings = HuggingFaceEmbeddings(
+            model_name="sentence-transformers/all-MiniLM-L6-v2",
+            model_kwargs={"token": api_token},
+        )
         self.llm = ChatOpenAI(
             model_name="gpt-4",
             api_key=open_api_key,
@@ -14,8 +19,8 @@ class ChatHandler:
             temperature=0.2,
         )
 
-
     def answer_question(self, question):
+        # Generate embedding for the question
         responses = []
         for root, dirs, files in os.walk(self.vector_db_path):
             for dir in dirs:

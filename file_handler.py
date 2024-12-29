@@ -1,18 +1,21 @@
 import os
-import os
 import hashlib
 import io
 import json
 import pandas as pd
 from langchain_community.vectorstores import FAISS
-from langchain_openai import OpenAIEmbeddings
 from PyPDF2 import PdfReader
 from docx import Document
+from langchain.embeddings import HuggingFaceEmbeddings
 
 class FileHandler:
-    def __init__(self, vector_db_path,open_api_key):
+    def __init__(self, vector_db_path,api_token):
         self.vector_db_path = vector_db_path
-        self.embeddings = OpenAIEmbeddings(api_key=open_api_key)
+        # Initialize the embedding model using Hugging Face
+        self.embeddings = HuggingFaceEmbeddings(
+            model_name="sentence-transformers/all-MiniLM-L6-v2",
+            model_kwargs={"token": api_token},
+        )
 
     def handle_file_upload(self, file, document_name, document_description):
         try:
@@ -43,8 +46,8 @@ class FileHandler:
             if not texts:
                 return {"message": "No text extracted from the file. Check the file content."}
 
-
-            vector_store = FAISS.from_texts(texts, self.embeddings, metadatas=metadatas)
+            # Create FAISS vector store using LangChain's from_texts method
+            vector_store = FAISS.from_texts(texts, embedding=self.embeddings, metadatas=metadatas)
             vector_store.save_local(vector_store_dir)
 
             metadata = {
@@ -60,6 +63,7 @@ class FileHandler:
             return {"message": "File processed successfully."}
         except Exception as e:
             return {"message": f"Error processing file: {str(e)}"}
+
 
     def load_and_split_pdf(self, file):
         reader = PdfReader(file)

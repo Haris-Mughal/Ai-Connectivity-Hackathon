@@ -1,7 +1,8 @@
 import streamlit as st
 import os
 from dotenv import load_dotenv
-from helper import FileHandler, ChatHandler
+from file_handler import FileHandler
+from chat_handler import ChatHandler
 
 # Load environment variables
 load_dotenv()
@@ -9,15 +10,14 @@ load_dotenv()
 # Initialize Handlers
 VECTOR_DB_PATH = st.secrets["VECTOR_DB_PATH_DB"]
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
-GROK_API_KEY = st.secrets["GROK_API_KEY"]
 os.makedirs(VECTOR_DB_PATH, exist_ok=True)
 
-file_handler = FileHandler(VECTOR_DB_PATH,OPENAI_API_KEY,GROK_API_KEY)
-chat_handler = ChatHandler(VECTOR_DB_PATH,OPENAI_API_KEY,GROK_API_KEY)
+file_handler = FileHandler(VECTOR_DB_PATH,OPENAI_API_KEY)
+chat_handler = ChatHandler(VECTOR_DB_PATH,OPENAI_API_KEY)
 
 # Streamlit UI
-st.set_page_config(layout="wide", page_title="DOGE Hackathon - Reducing Government Waste Effectively")
-st.title("DOGE Hackathon - Energy Efficiency in Government")
+st.set_page_config(layout="wide", page_title="AI Connect - Smarter Network Planning for the Future")
+st.title("AI Connect - Smarter Network Planning for the Future")
 # Enable the below line to show the sidebar
 
 # Left Side: File Upload

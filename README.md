@@ -1,6 +1,6 @@
-# AI Connecttivity Hackathon
+# AI Connect - Smarter Network Planning for the Future
 
-This project is a Retrieval-Augmented Generation (RAG) system that allows users to query embedded datasets related to government energy consumption. The system is preloaded with energy datasets in a vector database and provides a conversational AI assistant powered by the GROK model.
+This project is a Retrieval-Augmented Generation (RAG) system that allows users to query embedded datasets related to government energy consumption. The system is preloaded with energy datasets in a vector database and provides a conversational AI assistant powered by the OPEN AI Model.
 
 ## Features
 
@@ -28,9 +28,8 @@ This project is a Retrieval-Augmented Generation (RAG) system that allows users 
 
 1. **Clone the repository:**
 
-   
    ```bash
-    git clone https://github.com/your-repo-name/doge-hackathon-rag.git
+    git clone https://github.com/rajeshthangaraj1/ai-connectivity-hackathon.git
     cd doge-hackathon-rag
     ```
    
@@ -63,7 +62,6 @@ This project is a Retrieval-Augmented Generation (RAG) system that allows users 
     ```env
     OPENAI_API_KEY = "your-openai-api-key-here"
     VECTOR_DB_PATH_DB = "./vectordb"
-    GROK_API_KEY = "your-grok-api-key-here"
 
 ### Usage
 

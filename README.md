@@ -9,20 +9,13 @@ This project is a Retrieval-Augmented Generation (RAG) system that allows users 
 - Supports embedding generation using OpenAI's GPT-4 model.
 - User-friendly interface built with Streamlit.
 
-
-## Updates
-
-- **File Upload Sidebar:** The file upload functionality is currently hidden as the vector database already contains preloaded network datasets. 
-- **Re-enable Sidebar:** If needed, uncomment the sidebar code in `app.py` to allow file uploads. Instructions for enabling this feature are provided in the `Usage` section.
-
-
 ## Installation
 
 ### Prerequisites
 
 1. **Python 3.10** or higher
 2. **Pip** or a compatible package manager
-3. An **OpenAI API Key** and **GROK API Key**
+3. An **OpenAI API Key**
 
 ### Setup Instructions
 
@@ -70,17 +63,6 @@ This project is a Retrieval-Augmented Generation (RAG) system that allows users 
    ```bash
     streamlit run app.py
     ```
-3. **Re-enable Sidebar (Optional):**
-- If you need to upload new documents, enable the sidebar by uncommenting the related code in `app.py`.
-- Instructions:
-  1. Locate the following lines in `app.py`:
-     ```
-     # st.sidebar.header("Upload Documents")
-     # uploaded_file = st.sidebar.file_uploader("Upload PDF, Excel, Docx, or Txt", type=["pdf", "xlsx", "docx", "txt", "csv"])
-     # document_name = st.sidebar.text_input("Document Name", "")
-     # document_description = st.sidebar.text_area("Document Description", "")
-     ```
-  2. Uncomment these lines and restart the application.
 
 2. **Ask questions in the chat interface on the right side of the screen.**
 

@@ -6,7 +6,7 @@ import pandas as pd
 from langchain_community.vectorstores import FAISS
 from PyPDF2 import PdfReader
 from docx import Document
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 
 class FileHandler:
     def __init__(self, vector_db_path,api_token):

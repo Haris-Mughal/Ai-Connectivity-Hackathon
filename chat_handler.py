@@ -2,11 +2,14 @@ import os
 from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI
 from langchain_huggingface import HuggingFaceEmbeddings
+from groq import Groq
+import requests
 
 
 class ChatHandler:
-    def __init__(self, vector_db_path,api_token,open_api_key):
+    def __init__(self, vector_db_path,api_token,open_api_key,grok_api_token):
         self.vector_db_path = vector_db_path
+        self.groq_client = Groq(api_key=grok_api_token)
         # Initialize the embedding model using Hugging Face
         self.embeddings = HuggingFaceEmbeddings(
             model_name="sentence-transformers/all-MiniLM-L6-v2",
@@ -18,6 +21,19 @@ class ChatHandler:
             max_tokens=500,
             temperature=0.2,
         )
+    def _query_groq_model(self, prompt):
+        """
+        Query Groq's Llama model using the SDK.
+        """
+        try:
+            chat_completion = self.groq_client.chat.completions.create(
+                messages=[{"role": "user", "content": prompt}],
+                model="llama-3.1-8b-instant",  # Ensure the model name is correct
+            )
+            # Return the assistant's response
+            return chat_completion.choices[0].message.content
+        except Exception as e:
+            return f"Error querying Groq API: {e}"
 
     def answer_question(self, question):
         # Generate embedding for the question
@@ -35,16 +51,13 @@ class ChatHandler:
 
         if responses:
             prompt = self._generate_prompt(question, responses)
-            response = self.llm.invoke(prompt)
-
-            # Debugging: Check response structure
-            # print("Response structure:", response)
-
-            # Safely access the content attribute of AIMessage
-            if hasattr(response, "content"):
-                return response.content.strip()  # Ensure clean output
-            else:
-                return "Error: 'content' attribute not found in the AI's response."
+            # response = self.llm.invoke(prompt)
+            # if hasattr(response, "content"):
+            #     return response.content.strip()  # Ensure clean output
+            # else:
+            #     return "Error: 'content' attribute not found in the AI's response."
+            response = self._query_groq_model(prompt)
+            return response
 
 
         return "No relevant documents found or context is insufficient to answer your question."

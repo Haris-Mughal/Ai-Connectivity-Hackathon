@@ -15,11 +15,12 @@ PASSWORD = st.secrets["PASSWORD"]
 VECTOR_DB_PATH = st.secrets["VECTOR_DB_PATH_DB"]
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 HUGGINGFACE_API_TOKEN = st.secrets["HUGGINGFACE_API_TOKEN"]
+GROQ_API_KEY_TOKEN = st.secrets["GROQ_API_KEY"]
 
 os.makedirs(VECTOR_DB_PATH, exist_ok=True)
 
 file_handler = FileHandler(VECTOR_DB_PATH, HUGGINGFACE_API_TOKEN)
-chat_handler = ChatHandler(VECTOR_DB_PATH, HUGGINGFACE_API_TOKEN, OPENAI_API_KEY)
+chat_handler = ChatHandler(VECTOR_DB_PATH, HUGGINGFACE_API_TOKEN, OPENAI_API_KEY,GROQ_API_KEY_TOKEN)
 
 # Streamlit UI
 st.set_page_config(layout="wide", page_title="AI Connect - Smarter Network Planning for the Future")

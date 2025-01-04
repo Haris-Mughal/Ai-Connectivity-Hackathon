@@ -1,12 +1,11 @@
 # AI Connect - Smarter Network Planning for the Future
 
-This project is a Retrieval-Augmented Generation (RAG) system that allows users to query embedded datasets related to 5G network optimization. The system is preloaded with 5G network datasets in a vector database and provides a conversational AI assistant powered by the OpenAI Model
-
+This project is a Retrieval-Augmented Generation (RAG) system designed to assist users in querying datasets related to 5G network optimization. The system leverages a vector database for dataset embeddings and a conversational AI assistant powered by Groq's Llama-3.1 open-source instructor model.
 ## Features
 
 - Preloaded vector database with embedded Network datasets.
 - Query energy datasets using a conversational AI assistant.
-- Supports embedding generation using OpenAI's GPT-4 model.
+- Conversational responses powered by Groq's Llama-3.1 open-source model.
 - User-friendly interface built with Streamlit.
 
 ## Installation
@@ -15,7 +14,7 @@ This project is a Retrieval-Augmented Generation (RAG) system that allows users 
 
 1. **Python 3.10** or higher
 2. **Pip** or a compatible package manager
-3. An **OpenAI API Key**
+3. A **Groq API** Key to access the **Llama-3.1 model**
 
 ### Setup Instructions
 
@@ -53,7 +52,7 @@ This project is a Retrieval-Augmented Generation (RAG) system that allows users 
    Create a secrets.toml file inside the .streamlit folder in the root directory with the following variables:
 
     ```env
-    OPENAI_API_KEY = "your-openai-api-key-here"
+    GROQ_API_KEY = "your-groq-api-key-here"
     VECTOR_DB_PATH_DB = "./vectordb"
     HUGGINGFACE_API_TOKEN="your-huggingface-api-token"
     USERNAME="your-username-here"

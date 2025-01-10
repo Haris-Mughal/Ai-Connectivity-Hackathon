@@ -1,26 +1,19 @@
 import os
-from langchain_community.vectorstores import FAISS
-from langchain_openai import ChatOpenAI
 from langchain_huggingface import HuggingFaceEmbeddings
 from groq import Groq
-import requests
-
+from pymilvus import connections, Collection
 
 class ChatHandler:
-    def __init__(self, vector_db_path,api_token,open_api_key,grok_api_token):
-        self.vector_db_path = vector_db_path
+    def __init__(self,api_token,grok_api_token,logger):
+        self.logger = logger
+        self.logger.info("Initializing ChatHandler...")
         self.groq_client = Groq(api_key=grok_api_token)
         # Initialize the embedding model using Hugging Face
         self.embeddings = HuggingFaceEmbeddings(
             model_name="sentence-transformers/all-MiniLM-L6-v2",
             model_kwargs={"token": api_token},
         )
-        self.llm = ChatOpenAI(
-            model_name="gpt-4",
-            api_key=open_api_key,
-            max_tokens=500,
-            temperature=0.2,
-        )
+
     def _query_groq_model(self, prompt):
         """
         Query Groq's Llama model using the SDK.
@@ -33,29 +26,38 @@ class ChatHandler:
             # Return the assistant's response
             return chat_completion.choices[0].message.content
         except Exception as e:
+            self.logger.error(f"Error querying Groq API: {e}")
             return f"Error querying Groq API: {e}"
 
     def answer_question(self, question):
         # Generate embedding for the question
+        self.logger.info(f"Received question: {question}")
+        collections = connections._fetch_handler().list_collections()
         responses = []
-        for root, dirs, files in os.walk(self.vector_db_path):
-            for dir in dirs:
-                index_path = os.path.join(root, dir, "index.faiss")
-                if os.path.exists(index_path):
-                    vector_store = FAISS.load_local(
-                        os.path.join(root, dir), self.embeddings, allow_dangerous_deserialization=True
-                    )
-                    response_with_scores = vector_store.similarity_search_with_relevance_scores(question, k=100)
-                    filtered_responses = [doc.page_content for doc, score in response_with_scores]
-                    responses.extend(filtered_responses)
+
+        for collection_name in collections:
+            collection = Collection(name=collection_name)
+            embeddings = self.embeddings.embed_query(question)
+
+            search_params = {
+                "metric_type": "IP",
+                "params": {"nprobe": 10},
+            }
+
+            results = collection.search(
+                data=[embeddings],
+                anns_field="embedding",
+                param=search_params,
+                limit=5,
+            )
+            # Extract the embeddings or metadata (if needed)
+            for res in results[0]:
+                responses.append(str(res.id))  # Store the ID or use res.distance if needed for similarity score
+
+            responses.extend([res.entity for res in results[0]])
 
         if responses:
             prompt = self._generate_prompt(question, responses)
-            # response = self.llm.invoke(prompt)
-            # if hasattr(response, "content"):
-            #     return response.content.strip()  # Ensure clean output
-            # else:
-            #     return "Error: 'content' attribute not found in the AI's response."
             response = self._query_groq_model(prompt)
             return response
 

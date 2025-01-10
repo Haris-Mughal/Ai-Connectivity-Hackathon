@@ -1,26 +1,41 @@
+import logging
 import streamlit as st
 import os
 from dotenv import load_dotenv
 from file_handler import FileHandler
 from chat_handler import ChatHandler
+# Initialize Milvus connection
+from pymilvus import connections
 
 # Load environment variables
 load_dotenv()
 
-# Static credentials
-USERNAME = st.secrets["USERNAME"]
-PASSWORD = st.secrets["PASSWORD"]
+# Static credentials for login
+USERNAME = os.environ.get("USERNAME")
+PASSWORD = os.environ.get("PASSWORD")
+
+# Configure logging
+LOG_PATH = os.environ.get("LOG_PATH")
+os.makedirs(LOG_PATH, exist_ok=True)
+
+LOG_FILE = os.path.join(LOG_PATH, "chatbot.log")
+logging.basicConfig(
+    filename=LOG_FILE,
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger("AI_Connect")
 
 # Initialize Handlers
-VECTOR_DB_PATH = st.secrets["VECTOR_DB_PATH_DB"]
-OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
-HUGGINGFACE_API_TOKEN = st.secrets["HUGGINGFACE_API_TOKEN"]
-GROQ_API_KEY_TOKEN = st.secrets["GROQ_API_KEY"]
+MILVUS_HOST = os.environ.get("MILVUS_HOST")
+MILVUS_PORT = os.environ.get("MILVUS_PORT")
+HUGGINGFACE_API_TOKEN = os.environ.get("HUGGINGFACE_API_TOKEN")
+GROQ_API_KEY_TOKEN = os.environ.get("GROQ_API_KEY")
 
-os.makedirs(VECTOR_DB_PATH, exist_ok=True)
+connections.connect("default", host=MILVUS_HOST, port=MILVUS_PORT)
 
-file_handler = FileHandler(VECTOR_DB_PATH, HUGGINGFACE_API_TOKEN)
-chat_handler = ChatHandler(VECTOR_DB_PATH, HUGGINGFACE_API_TOKEN, OPENAI_API_KEY,GROQ_API_KEY_TOKEN)
+file_handler = FileHandler(HUGGINGFACE_API_TOKEN,logger)
+chat_handler = ChatHandler(HUGGINGFACE_API_TOKEN,GROQ_API_KEY_TOKEN,logger)
 
 # Streamlit UI
 st.set_page_config(layout="wide", page_title="AI Connect - Smarter Network Planning for the Future")
@@ -70,7 +85,6 @@ if not st.session_state["logged_in"]:
     )
 
     # Centered Login Box
-    # st.markdown('<div class="login-box">', unsafe_allow_html=True)
     st.subheader("Login to Continue")
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
@@ -78,6 +92,7 @@ if not st.session_state["logged_in"]:
         if username == USERNAME and password == PASSWORD:
             st.session_state["logged_in"] = True
             st.success("Login successful!")
+            logger.info("User Logged Successfully")
             st.rerun()
         else:
             st.error("Invalid username or password.")

@@ -1,16 +1,16 @@
 import os
 import hashlib
 import io
-import json
 import pandas as pd
-from langchain_community.vectorstores import FAISS
 from PyPDF2 import PdfReader
 from docx import Document
 from langchain_huggingface import HuggingFaceEmbeddings
+from pymilvus import FieldSchema, CollectionSchema, DataType, Collection
 
 class FileHandler:
-    def __init__(self, vector_db_path,api_token):
-        self.vector_db_path = vector_db_path
+    def __init__(self,api_token,logger):
+        self.logger = logger
+        self.logger.info("Initializing FileHandler...")
         # Initialize the embedding model using Hugging Face
         self.embeddings = HuggingFaceEmbeddings(
             model_name="sentence-transformers/all-MiniLM-L6-v2",
@@ -21,13 +21,10 @@ class FileHandler:
         try:
             content = file.read()
             file_hash = hashlib.md5(content).hexdigest()
-            file_key = f"{file.name}_{file_hash}"
-            vector_store_dir = os.path.join(self.vector_db_path, file_key)
-            os.makedirs(vector_store_dir, exist_ok=True)
-            vector_store_path = os.path.join(vector_store_dir, "index.faiss")
+            collection_name = f"collection_{file_hash}"
 
-            if os.path.exists(vector_store_path):
-                return {"message": "File already processed."}
+            # if Collection.exists(collection_name):
+            #     return {"message": "File already processed."}
 
             # Process file based on type
             if file.name.endswith(".pdf"):
@@ -41,30 +38,46 @@ class FileHandler:
             elif file.name.endswith(".csv"):
                 texts, metadatas = self.load_and_split_csv(content)
             else:
+                self.logger.info("Unsupported file format.")
                 raise ValueError("Unsupported file format.")
+
 
             if not texts:
                 return {"message": "No text extracted from the file. Check the file content."}
 
-            # Create FAISS vector store using LangChain's from_texts method
-            vector_store = FAISS.from_texts(texts, embedding=self.embeddings, metadatas=metadatas)
-            vector_store.save_local(vector_store_dir)
+            self._store_vectors(collection_name, texts, metadatas)
 
-            metadata = {
-                "filename": file.name,
-                "document_name": document_name,
-                "document_description": document_description,
-                "file_size": len(content),
-            }
-            metadata_path = os.path.join(vector_store_dir, "metadata.json")
-            with open(metadata_path, 'w') as md_file:
-                json.dump(metadata, md_file)
+            # metadata = {
+            #     "filename": file.name,
+            #     "document_name": document_name,
+            #     "document_description": document_description,
+            #     "file_size": len(content),
+            # }
+            # metadata_path = os.path.join(vector_store_dir, "metadata.json")
+            # with open(metadata_path, 'w') as md_file:
+            #     json.dump(metadata, md_file)
 
             return {"message": "File processed successfully."}
         except Exception as e:
+            self.logger.error(f"Error processing file: {str(e)}")
             return {"message": f"Error processing file: {str(e)}"}
 
+    def _store_vectors(self, collection_name, texts, metadatas):
+        fields = [
+            FieldSchema(name="pk", dtype=DataType.INT64, is_primary=True, auto_id=True),
+            FieldSchema(name="embedding", dtype=DataType.FLOAT_VECTOR, dim=384),
+        ]
+        schema = CollectionSchema(fields, description="Document embeddings")
+        collection = Collection(name=collection_name, schema=schema)
+        # Generate embeddings
+        embeddings = [self.embeddings.embed_query(text) for text in texts]
 
+        # Prepare data for insertion
+        data = [embeddings]
+
+        # Insert data into collection
+        collection.insert(data)
+        collection.load()
     def load_and_split_pdf(self, file):
         reader = PdfReader(file)
         texts = []

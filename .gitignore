@@ -59,7 +59,6 @@ coverage.xml
 ENV/
 env/
 venv/
-.env.*
 
 # PyCharm
 .idea/
@@ -81,7 +80,6 @@ celerybeat-schedule
 *.key
 
 # log files
-logs/
 *.log
 
 # vscode settings

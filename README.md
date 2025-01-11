@@ -48,15 +48,17 @@ This project is a Retrieval-Augmented Generation (RAG) system designed to assist
     pip install -r requirements.txt
     ```
 
-4. **Set up the `.streamlit/secrets.toml` file:**
-   Create a secrets.toml file inside the .streamlit folder in the root directory with the following variables:
+4. **Set up the `.env` file:**
+   In the root directory, locate the .env.example file, rename it to .env, and update it with the necessary credentials or environment variables:
 
     ```env
     GROQ_API_KEY = "your-groq-api-key-here"
-    VECTOR_DB_PATH_DB = "./vectordb"
+    LOG_PATH = "./logs"
     HUGGINGFACE_API_TOKEN="your-huggingface-api-token"
     USERNAME="your-username-here"
     PASSWORD="your-password-here"
+    MILVUS_HOST="your-milvus-host"  
+    MILVUS_PORT="your-milvus-port"
     ```
    
 

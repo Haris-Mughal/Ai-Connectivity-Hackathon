@@ -52,12 +52,12 @@ class ChatHandler:
             )
             # Extract the embeddings or metadata (if needed)
             for res in results[0]:
-                responses.append(str(res.id))  # Store the ID or use res.distance if needed for similarity score
-
-            responses.extend([res.entity for res in results[0]])
+                # Store the ID or use res.distance if needed for similarity score
+                responses.append({"id": res.id, "distance": res.distance,"content":res.entity})
 
         if responses:
-            prompt = self._generate_prompt(question, responses)
+            sorted_responses = sorted(responses, key=lambda x: x["distance"], reverse=True)
+            prompt = self._generate_prompt(question, sorted_responses[:5])
             response = self._query_groq_model(prompt)
             return response
 
@@ -70,7 +70,10 @@ class ChatHandler:
         and answer questions effectively using the provided documents.
         """
         context = "\n".join(
-            [f"Document {i + 1}:\n{doc.strip()}" for i, doc in enumerate(documents[:5])]
+            [
+                f"Document {i + 1}:\nID: {doc['id']}\nSimilarity: {doc['distance']:.4f}\nContent: {doc['content']}"
+                for i, doc in enumerate(documents[:5])
+            ]
         )
 
         prompt = f"""

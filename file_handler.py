@@ -5,7 +5,8 @@ import pandas as pd
 from PyPDF2 import PdfReader
 from docx import Document
 from langchain_huggingface import HuggingFaceEmbeddings
-from pymilvus import FieldSchema, CollectionSchema, DataType, Collection
+from pymilvus import connections, FieldSchema, CollectionSchema, DataType, Collection
+import json
 
 class FileHandler:
     def __init__(self,api_token,logger):
@@ -23,8 +24,10 @@ class FileHandler:
             file_hash = hashlib.md5(content).hexdigest()
             collection_name = f"collection_{file_hash}"
 
-            # if Collection.exists(collection_name):
-            #     return {"message": "File already processed."}
+            # Check if the collection exists
+            if connections._fetch_handler().has_collection(collection_name):
+                self.logger.info(f"Collection '{collection_name}' already exists.")
+                return {"message": "File already processed."}
 
             # Process file based on type
             if file.name.endswith(".pdf"):
@@ -45,35 +48,52 @@ class FileHandler:
             if not texts:
                 return {"message": "No text extracted from the file. Check the file content."}
 
-            self._store_vectors(collection_name, texts, metadatas)
-
-            # metadata = {
-            #     "filename": file.name,
-            #     "document_name": document_name,
-            #     "document_description": document_description,
-            #     "file_size": len(content),
-            # }
-            # metadata_path = os.path.join(vector_store_dir, "metadata.json")
-            # with open(metadata_path, 'w') as md_file:
-            #     json.dump(metadata, md_file)
+            # self._store_vectors(collection_name, texts, metadatas)
+            filename = file.name
+            filelen = len(content)
+            self._store_vectors(collection_name, texts, metadatas, document_name, document_description,filename,filelen)
+            self.logger.info(f"File processed successfully. Collection name: {collection_name}")
 
             return {"message": "File processed successfully."}
         except Exception as e:
             self.logger.error(f"Error processing file: {str(e)}")
             return {"message": f"Error processing file: {str(e)}"}
 
-    def _store_vectors(self, collection_name, texts, metadatas):
+    def _store_vectors(self, collection_name, texts, metadatas, document_name, document_description,file_name,file_len):
         fields = [
             FieldSchema(name="pk", dtype=DataType.INT64, is_primary=True, auto_id=True),
             FieldSchema(name="embedding", dtype=DataType.FLOAT_VECTOR, dim=384),
+            FieldSchema(name="file_name_hash", dtype=DataType.INT64),  # Hash of file name
+            FieldSchema(name="document_name_hash", dtype=DataType.INT64),  # Hash of document name
+            FieldSchema(name="document_description_hash", dtype=DataType.INT64),  # Hash of document description
+            FieldSchema(name="file_meta_hash", dtype=DataType.INT64),
+            FieldSchema(name="file_size", dtype=DataType.INT64),
         ]
-        schema = CollectionSchema(fields, description="Document embeddings")
+        schema = CollectionSchema(fields, description="Document embeddings with metadata")
         collection = Collection(name=collection_name, schema=schema)
         # Generate embeddings
         embeddings = [self.embeddings.embed_query(text) for text in texts]
 
+        # Convert metadata to hashed values
+        file_name_hash = int(hashlib.md5(file_name.encode('utf-8')).hexdigest(), 16) % (10 ** 12)
+        document_name_hash = int(hashlib.md5((document_name or "Unknown Document").encode('utf-8')).hexdigest(), 16) % (
+                    10 ** 12)
+        document_description_hash = int(
+            hashlib.md5((document_description or "No Description Provided").encode('utf-8')).hexdigest(), 16) % (
+                                                10 ** 12)
+        # Convert metadata list to JSON string and hash it
+        metadata_string = json.dumps(metadatas, ensure_ascii=False)
+        file_meta_hash = int(hashlib.md5(metadata_string.encode('utf-8')).hexdigest(), 16) % (10 ** 12)
+
         # Prepare data for insertion
-        data = [embeddings]
+        data = [
+            embeddings,
+            [file_name_hash] * len(embeddings),
+            [document_name_hash] * len(embeddings),
+            [document_description_hash] * len(embeddings),
+            [file_meta_hash] * len(embeddings),
+            [file_len or 0] * len(embeddings),
+        ]
 
         # Insert data into collection
         collection.insert(data)
